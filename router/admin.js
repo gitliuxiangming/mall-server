@@ -30,12 +30,6 @@ router.get("/init",(req,res)=>{
 
 
 
-
-
-
-
-
-
 //用户登录
 router.post("/login",(req,res)=>{
 	let body = req.body;
@@ -51,7 +45,7 @@ router.post("/login",(req,res)=>{
 			 req.session.userInfo = {
 			 	_id:user._id,
 			 	username:user.username,
-			 	isAdmin:user.isAdmin
+			 	isAdmin:user.isAdmin,
 			 }
 			 result.data = {
 			 	username:user.username
@@ -59,20 +53,38 @@ router.post("/login",(req,res)=>{
 			 res.json(result);
 		}else{
 			result.code = 1;
-			result.message = '用户名和密码错误'
+			result.message = '用户名和密码错误';
 			res.json(result);
 		}
 	})
 })
+
 
 //权限控制
 router.use((req,res,next)=>{
 	if(req.userInfo.isAdmin){
 		next()
 	}else{
-		res.send('<h1>请用管理员账号登录</h1>');
+		res.send({
+			code:10,a
+		});
 	}
 })
+
+router.get('/count',(req,res)=>{
+	res.json({
+		code:0,
+		data:{
+			usernum:111,
+			ordernum:222,
+			productnum:333
+		}
+
+	})
+})
+
+
+
 
 //显示管理员首页
 router.get("/",(req,res)=>{

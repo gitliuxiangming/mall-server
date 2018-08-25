@@ -30,10 +30,18 @@ app.use((req,res,next)=>{
     next();
 })
 
+app.use((req,res,next)=>{
+    if(req.method == 'OPTIONS'){
+        res.send('OPTIONS OK')
+    }else{
+        next();
+    }
+})
+
 //设置cookie的中间件,后面所有的中间件都会有cookie
 app.use(session({
     //设置cookie名称
-    name:'kmid',
+    name:'shopmallid',
     //用它来对session cookie签名，防止篡改
     secret:'dsjfkdfd',
     //强制保存session即使它并没有变化
