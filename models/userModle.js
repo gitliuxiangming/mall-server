@@ -10,7 +10,14 @@ const UserSchema = new mongoose.Schema({
   		isAdmin:{
   			type:Boolean,
   			default:false
-  		}
-	});
+  		},
+      phone:{
+        type:String,
+      },
+      email:{
+        type:String
+      },
+      
+	},{timestamps:true});
 let UserModel = mongoose.model('User', UserSchema);
 module.exports=UserModel;

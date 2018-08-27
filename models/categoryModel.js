@@ -6,8 +6,11 @@ const CategorySchema = new mongoose.Schema({
   		},
   		order:{
         type:Number,
-        default:1
-      }
-	});
+        default:0
+    	},
+    	pid:{
+    		type:String
+    	}
+	},{timestamps:true});
 let categoryModel = mongoose.model('Category',CategorySchema);
 module.exports=categoryModel;
