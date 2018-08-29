@@ -96,6 +96,36 @@ router.get("/",(req,res)=>{
 	
 })
 
+//得到input框的value值
+router.get("/getvalue",(req,res)=>{
+	// console.log(req.query)
+	let updateId = req.query.updateId;
+	let updateName = req.query.updateName;
+	
+	CategoryModel.update({_id:updateId},{name:'一级分类6'})
+	.then(()=>{
+		CategoryModel.findOne({_id:updateId})
+		.then((categories)=>{
+			res.json({
+				code:0,
+				data:categories
+			})
+		})
+		.catch((e)=>{
+			res.json({
+				code:1,
+				message:'在数据库中没找到'
+			})
+		})
+	})
+	.catch((e)=>{
+			res.json({
+				code:1,
+				message:'服务器离家出走了'
+			})
+		})
+	
+})
 
 
 
