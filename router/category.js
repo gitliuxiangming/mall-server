@@ -96,38 +96,79 @@ router.get("/",(req,res)=>{
 	
 })
 
-//得到input框的value值
-router.get("/getvalue",(req,res)=>{
-	// console.log(req.query)
-	let updateId = req.query.updateId;
-	let updateName = req.query.updateName;
-	
-	CategoryModel.update({_id:updateId},{name:'一级分类6'})
-	.then(()=>{
-		CategoryModel.findOne({_id:updateId})
-		.then((categories)=>{
-			res.json({
-				code:0,
-				data:categories
-			})
-		})
-		.catch((e)=>{
+//得到input框的value值并更新
+router.put("/updateName",(req,res)=>{	
+	let body=req.body
+	CategoryModel.findOne({name:body.name,pid:body.pid})
+	.then((categories)=>{
+		if(categories){
 			res.json({
 				code:1,
-				message:'在数据库中没找到'
+				message:'重名'
 			})
-		})
+		}else{
+			CategoryModel.update({_id:body.id},{name:body.name})
+			.then((result)=>{
+				if(result){
+					CategoryModel
+					.getPaginationCategories(body.page,{pid:body.pid},'id name order pid')
+					.then((data)=>{
+						res.json({
+							code:0,
+							data:{
+								current:data.current,
+								total:data.total,
+								pageSize:data.pageSize,
+								list:data.list
+							}
+						});	
+					})
+				}
+			})
+			.catch((e)=>{
+				res.json({
+					code:1,
+					message:'更新数据库出错'
+				})
+			})
+		}
 	})
 	.catch((e)=>{
-			res.json({
-				code:1,
-				message:'服务器离家出走了'
-			})
+		res.json({
+			code:1,
+			message:'数据库中没找到'
 		})
-	
+	})	
 })
 
-
+//得到order值并更新
+router.put("/updateOrder",(req,res)=>{	
+	let body=req.body
+	CategoryModel.update({_id:body.id},{order:body.order})
+	.then((result)=>{
+		if(result){
+			CategoryModel
+			.getPaginationCategories(body.page,{pid:body.pid},'id name order pid')
+			.then((data)=>{
+				res.json({
+					code:0,
+					data:{
+						current:data.current,
+						total:data.total,
+						pageSize:data.pageSize,
+						list:data.list
+					}
+				});	
+			})
+		}
+	})
+	.catch((e)=>{
+		res.json({
+			code:1,
+			message:'更新数据库出错'
+		})
+	})
+})
 
 
 
