@@ -30,6 +30,7 @@ app.use((req,res,next)=>{
     next();
 })
 
+app.use(express.static(__dirname + '/public'));
 app.use((req,res,next)=>{
     if(req.method == 'OPTIONS'){
         res.send('OPTIONS OK')
@@ -75,6 +76,7 @@ app.use("/article",require('./router/article.js'));
 app.use("/comment",require('./router/comment.js'));
 app.use("/resource",require('./router/resource.js'));
 app.use("/home",require('./router/home.js'));
+app.use("/product",require('./router/product.js'));
 
 
 app.listen(3000,()=>{
