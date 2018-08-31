@@ -47,6 +47,25 @@ router.post("/uploadImage",upload.single('file'),(req,res)=>{
 	*/
 
 })
+//富文本编辑器中的图片上传地址
+router.post("/uploaDetaildImage",upload.single('file'),(req,res)=>{
+	res.send('http://127.0.0.1:3000/public/product-image/'+req.file.filename)
+	/*
+	new ResourceModel({
+		name:req.body.name,
+		path:'/product-image/'+req.file.filename
+	})
+	.save()
+	.then(resource=>{
+		res.render('admin/success',{
+			userInfo:req.userInfo,
+			message:'添加资源成功',
+			url:'/resource'
+		})			
+	})
+	*/
+
+})
 
 
 
