@@ -78,53 +78,121 @@ router.post("/uploadDetailImage",upload.single('upload'),(req,res)=>{
 
 
 //处理添加请求
-/*
+
 router.post("/",(req,res)=>{
 	let body = req.body;
-	ProductModel
-	.findOne({name:body.name,pid:body.pid})
-	.then((cate)=>{
-		if(cate){
-	 		res.json({
-	 			code:1,
-	 			message:"添加分类失败,分类已存在"
-	 		})
-		}else{
-			new CategoryModel({
-				name:body.name,
-				pid:body.pid
-			})
-			.save()
-			.then((newCate)=>{
-				if(newCate){
-					if(body.pid == 0){
-						CategoryModel.find({pid:0},"_id name pid order")
-						.then((categories)=>{
-							res.json({
-								code:0,
-								data:categories
-							})
-						})
-					}else{
-						res.json({
-							code:0
-						})
-					}
-				}
-			})
-			.catch((e)=>{
-		 		res.json({
-		 			code:1,
-		 			message:"添加分类失败,服务器端错误"
-		 		})
+	new ProductModel({
+		name:body.name,
+		category:body.category,
+		description:body.description,
+		filePath:body.filePath,
+		value:body.value,
+		price:body.price,
+		stoke:body.stoke,
+	})
+	.save()
+	.then((newCate)=>{
+		if(newCate){
+			res.json({
+				code:0,
+				message:'新增商品成功'
 			})
 		}
 	})
+	.catch((e)=>{
+ 		res.json({
+ 			code:1,
+ 			message:"后台：添加分类失败"
+ 		})
+	})
 })
-*/
+
+//获取分类
+router.get("/",(req,res)=>{
+	let page = req.query.page || 1;
+	if(page){
+		ProductModel
+		.getPaginationCategories(page,{})
+		.then((data)=>{
+			res.json({
+				code:0,
+				data:{
+					current:data.current,
+					total:data.total,
+					pageSize:data.pageSize,
+					list:data.list
+				}
+			});	
+		})
+	}
+	
+})
 
 
+//得到order值并更新
+router.put("/updateOrder",(req,res)=>{	
+	let body=req.body
+	ProductModel.update({_id:body.id},{order:body.order})
+	.then((result)=>{
+		if(result){
+			ProductModel
+			.getPaginationCategories(body.page,{})
+			.then((data)=>{
+				res.json({
+					code:0,
+					data:{
+						current:data.current,
+						total:data.total,
+						pageSize:data.pageSize,
+						list:data.list
+					}
+				});	
+			})
+		}
+	})
+	.catch((e)=>{
+		res.json({
+			code:1,
+			message:'后台：更新数据库出错'
+		})
+	})
+})
 
+
+//status
+router.put("/updateStatus",(req,res)=>{	
+	let body=req.body
+	ProductModel.update({_id:body.id},{status:body.status})
+	.then((result)=>{
+		if(result){
+			res.json({
+					code:0,
+					message:'跟新成功'
+				});	
+		}else{
+			ProductModel
+			.getPaginationCategories(body.page,{})
+			.then((data)=>{
+				res.json({
+					code:1,
+					data:{
+						current:data.current,
+						total:data.total,
+						pageSize:data.pageSize,
+						list:data.list
+					},
+					message:'更新失败'
+				});	
+			})
+		}
+	})
+	.catch((e)=>{
+		res.json({
+			code:1,
+			message:'后台：更新数据库出错'
+		})
+	})
+})
 
 
 
