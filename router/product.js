@@ -194,6 +194,24 @@ router.put("/updateStatus",(req,res)=>{
 	})
 })
 
+//edit detail
+router.get("/detail",(req,res)=>{	
+	let id=req.query.id;
+	ProductModel.findById(id,"-__v -order -status -createdAt -updatedAt")
+	.populate({path:'category',select:'_id pid'})
+	.then((product)=>{
+		res.json({
+			code:0,
+			data:product
+		});	
+	})
+	.catch((e)=>{
+		res.json({
+			code:1,
+			message:'后台：更新数据库出错'
+		})
+	})
+})
 
 
 
