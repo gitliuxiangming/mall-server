@@ -3,6 +3,19 @@ const router=Router();
 const UserModel = require('../models/userModle.js');
 const hmac = require('../util/hmac.js')
 
+
+//权限控制
+router.use((req,res,next)=>{
+	if(req.userInfo._id){
+		next()
+	}else{
+		res.send({
+			code:10,
+		});
+	}
+})
+
+
 router.get('/logout',(req,res)=>{
 	let result = {
 		code:0,
