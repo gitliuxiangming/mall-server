@@ -34,7 +34,7 @@ const ProductSchema = new mongoose.Schema({
       }
 	},{timestamps:true});
 
-ProductSchema.statics.getPaginationCategories = function(page,query={}){
+ProductSchema.statics.getPaginationProducts = function(page,query={}){
     return new Promise((resolve,reject)=>{
       let options = {
         page: page,//需要显示的页码

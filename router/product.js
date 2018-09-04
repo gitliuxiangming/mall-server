@@ -3,7 +3,8 @@ const Router = require('express').Router;
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const ProductModel = require('../models/product.js')
+const ProductModel = require('../models/product.js');
+
 
 
 
@@ -112,7 +113,7 @@ router.get("/",(req,res)=>{
 	let page = req.query.page || 1;
 	if(page){
 		ProductModel
-		.getPaginationCategories(page,{})
+		.getPaginationProducts(page,{})
 		.then((data)=>{
 			res.json({
 				code:0,
@@ -136,7 +137,7 @@ router.put("/updateOrder",(req,res)=>{
 	.then((result)=>{
 		if(result){
 			ProductModel
-			.getPaginationCategories(body.page,{})
+			.getPaginationProducts(body.page,{})
 			.then((data)=>{
 				res.json({
 					code:0,
@@ -171,7 +172,7 @@ router.put("/updateStatus",(req,res)=>{
 				});	
 		}else{
 			ProductModel
-			.getPaginationCategories(body.page,{})
+			.getPaginationProducts(body.page,{})
 			.then((data)=>{
 				res.json({
 					code:1,
@@ -213,6 +214,60 @@ router.get("/detail",(req,res)=>{
 	})
 })
 
+router.put("/",(req,res)=>{
+	let body = req.body;
+	let update={
+		name:body.name,
+		category:body.category,
+		description:body.description,
+		filePath:body.filePath,
+		value:body.value,
+		price:body.price,
+		stoke:body.stoke,
+	}
+	ProductModel.update({_id:body.id},update)
+	.then((newCate)=>{
+		if(newCate){
+			res.json({
+				code:0,
+				message:'编辑商品成功'
+			})
+		}
+	})
+	.catch((e)=>{
+ 		res.json({
+ 			code:1,
+ 			message:"后台：更新分类失败"
+ 		})
+	})
+})
+
+
+router.get('/search',(req,res)=>{
+	let page = req.query.page || 1;
+	let keyword = req.query.keyword;
+	ProductModel
+	.getPaginationProducts(page,{name:{$regex:new RegExp(keyword,'i')}})
+	.then((result)=>{
+		// console.log(result)
+		res.json({ 
+			code:0,
+			data:{
+				current:result.current,
+				total:result.total,
+				list:result.list,
+				pageSize:result.pageSize,
+				keyword:keyword
+			}
+		});	 
+	})
+	.catch(e=>{
+		res.json({
+			code:1,
+			message:'查找分类失败,数据库操作失败'
+		})
+	});
+})
 
 
 module.exports = router;
