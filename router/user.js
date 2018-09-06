@@ -26,7 +26,35 @@ router.get('/logout',(req,res)=>{
 })
 
 
+router.post("/login",(req,res)=>{
+	let body = req.body;
+	//定义返回数据
+	let result  = {
+		code:0,// 0 代表成功 
+		message:''
+	}
+	UserModel
+	.findOne({username:body.username,password:hmac(body.password),isAdmin:false})
+	.then((user)=>{
+		if(user){//登录成功
+			 req.session.userInfo = {
+			 	_id:user._id,
+			 	username:user.username,
+			 	isAdmin:user.isAdmin,
+			 }
+			 result.data = {
+			 	username:user.username
+			 }
+			 res.json(result);
+		}else{
+			result.code = 1;
+			result.message = '用户名和密码错误';
+			res.json(result);
+		}
+	})
+})
 
+/*
 router.get("/init",(req,res)=>{
 	//定义返回数据
 	let result  = {
@@ -50,6 +78,7 @@ router.get("/init",(req,res)=>{
 
 
 })
+*/
 
 module.exports = router;
 
