@@ -183,6 +183,22 @@ router.get('/userInfo',(req,res)=>{
 	}
 })
 
+router.put('/updatePassword',(req,res)=>{
+	UserModel.update({_id:req.userInfo._id},{password:hmac(req.body.password)})
+	.then((result)=>{
+		console.log(result)
+		res.json({
+			code:0,
+			message:'更新密码成功'
+		})
+	})
+	.catch((err)=>{
+		res.json({
+			code:1,
+			message:'更新密码失败'
+		})
+	})
+})
 
 module.exports = router;
 
