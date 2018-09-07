@@ -127,18 +127,6 @@ router.get("/initer",(req,res)=>{
 })
 */
 
-/*
-//权限控制
-router.use((req,res,next)=>{
-	if(req.userInfo._id){
-		next()
-	}else{
-		res.send({
-			code:1,
-		});
-	}
-})
-*/
 
 router.get('/logout',(req,res)=>{
 	let result = {
@@ -150,11 +138,15 @@ router.get('/logout',(req,res)=>{
 })
 
 
-router.get('/userInfo',(req,res)=>{
+
+
+router.get('/username',(req,res)=>{
 	if(req.userInfo._id){
 		res.json({
 			code:0,
-			data:req.userInfo
+			data:{
+				username:req.userInfo.username
+			}
 		})
 	}else{
 		res.json({
@@ -164,7 +156,32 @@ router.get('/userInfo',(req,res)=>{
 })
 
 
+//权限控制
+router.use((req,res,next)=>{
+	if(req.userInfo._id){
+		next()
+	}else{
+		res.send({
+			code:10,
+		});
+	}
+})
 
+router.get('/userInfo',(req,res)=>{
+	if(req.userInfo._id){
+		UserModel.findById(req.userInfo._id,"username phone email")
+		.then((result)=>{
+			res.json({
+				code:0,
+				data:result
+			})
+		})
+	}else{
+		res.json({
+			code:1
+		})
+	}
+})
 
 
 module.exports = router;
