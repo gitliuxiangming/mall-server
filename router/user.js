@@ -1,6 +1,7 @@
 const Router=require('express').Router;
 const router=Router();
 const UserModel = require('../models/userModle.js');
+const ProductModel = require('../models/product.js');
 const hmac = require('../util/hmac.js')
 
 router.post("/login",(req,res)=>{

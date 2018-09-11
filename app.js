@@ -77,6 +77,7 @@ app.use("/comment",require('./router/comment.js'));
 app.use("/resource",require('./router/resource.js'));
 app.use("/home",require('./router/home.js'));
 app.use("/product",require('./router/product.js'));
+app.use("/cart",require('./router/cart.js'));
 
 
 app.listen(3000,()=>{
