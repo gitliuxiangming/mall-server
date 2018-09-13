@@ -4,6 +4,45 @@ const UserModel = require('../models/userModle.js');
 const ProductModel = require('../models/product.js');
 const hmac = require('../util/hmac.js')
 
+
+//获取购物车数量
+router.get('/getCartCount',(req,res)=>{
+	if(req.userInfo._id){
+		UserModel.findById(req.userInfo._id)
+		.then(user=>{
+			if(user.cart){
+				let count = 0;
+				user.cart.cartList.forEach(item=>{
+					count += item.count
+				})
+				res.json({
+					code:0,
+					data:count
+				})
+			}else{
+				res.json({
+					code:0,
+					data:0
+				})
+			}
+			
+		})
+		.catch(e=>{
+			res.json({
+				code:1,
+				message:'后台:错误'
+			})
+		})
+	}else{
+		res.json({
+			code:1,
+			message:'请登录'
+		})
+	}
+	
+})
+
+
 //普通用户登录权限控制
 router.use((req,res,next)=>{
 	if(req.userInfo._id){
@@ -283,6 +322,47 @@ router.put("/deleteSelected",(req,res)=>{
 		})
 	})
 });
+
+//修改数量
+router.put("/updateCount",(req,res)=>{
+	let body = req.body;
+	UserModel.findById(req.userInfo._id)
+	.then(user=>{
+		//已有购物车
+		if(user.cart){
+			let cartItem = user.cart.cartList.find((item)=>{
+				return item.product == body.productId
+			})
+			if(cartItem){
+				cartItem.count = body.count;
+			}else{
+				res.json({
+					code:1,
+					message:'购物车记录不存在'
+				})			
+			}
+
+		}
+		//没有购物车
+		else{
+			res.json({
+				code:1,
+				message:'还没有购物车'
+			})
+		}
+		user.save()
+		.then(newUser=>{
+			user.getCart()
+			.then(cart=>{
+				res.json({
+					code:0,
+					data:cart
+				})			
+			})
+		})
+	})
+});
+
 
 
 module.exports = router;
