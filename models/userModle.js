@@ -33,6 +33,26 @@ const CartSchema = new mongoose.Schema({
   }
 })
 
+const ShippingSchema = new mongoose.Schema({
+    name:{
+        type:String
+    },
+    province:{
+        type:String
+    },
+    city:{
+        type:String
+    },
+    address:{
+        type:String
+    },
+    phone:{
+        type:String
+    },
+    zip:{
+        type:String
+    },
+})
 const UserSchema = new mongoose.Schema({
   username:{
     type:String
@@ -52,7 +72,11 @@ const UserSchema = new mongoose.Schema({
   },
   cart:{
     type:CartSchema
-  }
+  },
+  shipping:{
+    type:[ShippingSchema],
+    default:[]
+  },
 },{
   timestamps:true
 });
@@ -71,7 +95,7 @@ UserSchema.methods.getCart = function(){
                         .findById(cartItem.product,"name price stoke filePath _id")
                         .then(product=>{
                             cartItem.product = product;
-                            cartItem.totalPrice = product.price * cartItem.count
+                            cartItem.totalPrice = product.price * cartItem.count;
                             return cartItem
                         })
         })
@@ -103,6 +127,9 @@ UserSchema.methods.getCart = function(){
             }
 
             resolve(this.cart);
+        })
+        .catch(e=>{
+            console.log(e);
         })
 
     });
