@@ -3,6 +3,17 @@ const router=Router();
 const UserModel = require('../models/userModle.js');
 const OrderModel = require('../models/order.js');
 
+//权限控制
+// router.use((req,res,next)=>{
+// 	if(req.userInfo.isAdmin){
+// 		next()
+// 	}else{
+// 		res.send({
+// 			code:10,
+// 		});
+// 	}
+// })
+
 
 //获取生成订单的商品列表
 router.get('/getOrderProductList',(req,res)=>{
@@ -26,6 +37,32 @@ router.get('/getOrderProductList',(req,res)=>{
 	
 })
 
+//获取订单信息
+router.get('/list',(req,res)=>{
+	let page = req.query.page;
+	let query = {
+		user:req.userInfo._id
+	}
+	OrderModel.getPaginationOders(page,query)
+	.then((result)=>{
+		res.json({
+			code:0,
+			data:{
+				current:result.current,
+				total:result.total,
+				list:result.list,
+				pageSize:result.pageSize
+			}
+		})
+	})
+	.catch((e)=>{
+		res.json({
+			code:1,
+			message:'获取订单列表失败'
+		})
+	})
+})
+
 //创建订单
 router.post('/',(req,res)=>{
 	UserModel.findById(req.userInfo._id)
@@ -42,7 +79,7 @@ router.post('/',(req,res)=>{
 					count:item.count,
 					totalPrice:item.totalPrice,
 					price:item.product.price,
-					filepath:item.product.filepath,
+					filePath:item.product.filePath,
 					name:item.product.name
 				})
 			})
@@ -69,10 +106,23 @@ router.post('/',(req,res)=>{
 			new OrderModel(order)
 			.save()
 			.then((newOrder)=>{	
-				res.json({
-					code:0,
-					data:newOrder
+				//删除购物车中已经提交订单的商品
+				UserModel.findById(req.userInfo._id)
+				.then(user=>{
+					let newCartList = user.cart.cartList.filter(item=>{
+						return item.checked == false;
+					})
+					user.cart.cartList = newCartList;
+					user.save()
+					.then(newUser=>{
+						res.json({
+							code:0,
+							data:newOrder
+						})
+					})
 				})
+				
+				
 			})
 		})
 		
@@ -85,6 +135,68 @@ router.post('/',(req,res)=>{
 	})
 })
 
+ //获取购物订单
+ router.get('/getlist',(req,res)=>{
+ 	let page = req.query.page;
+ 	let query = {
+ 		user:req.userInfo._id
+ 	}
+
+ 	OrderModel
+ 	.getPaginationProduct(page,query)
+	.then(data=>{
+		
+		res.json({
+			code :0,
+			
+			data:{
+				list:data.list,
+				current:data.current,
+				total:data.total,
+				pageSize:data.pageSize,
+				status:data.status
+			}
+		})
+	})
+ });
+
+ //获取订单详情页
+ router.get('/detail',(req,res)=>{
+ 
+ 	OrderModel
+ 	.findOne({orderNo:req.query.orderNo,user:req.userInfo._id})
+	.then(data=>{
+		res.json({
+			code :0,
+			
+			data:data
+		})
+	})
+ });
+ //取消订单
+ router.put('/cancel',(req,res)=>{
+ 		OrderModel
+ 		.findOneAndUpdate(
+ 			{orderNo:req.body.orderNo,user:req.userInfo._id},
+ 			{status:"20",statusDesc:"取消"},
+ 			{new :true}
+ 			)
+		.then(data=>{
+		
+			res.json({
+				code :0,
+				
+				data:data
+			})
+		})
+		.catch(e=>{
+			res.json({
+				code :0,
+				
+				message:"取消订单失败"
+			})
+		})
+	})
 
 
 

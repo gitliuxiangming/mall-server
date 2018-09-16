@@ -80,6 +80,7 @@ app.use("/product",require('./router/product.js'));
 app.use("/shipping",require('./router/shipping.js'));
 app.use("/order",require('./router/order.js'));
 app.use("/cart",require('./router/cart.js'));
+app.use("/payment",require('./router/payment.js'));
 
 
 
