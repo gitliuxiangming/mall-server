@@ -98,7 +98,7 @@ const OrderSchema = new mongoose.Schema({
 	},
 },{timestamps:true});
 
-OrderSchema.statics.getPaginationOders = function(page,query={}){
+OrderSchema.statics.getPaginationOrders = function(page,query={}){
     return new Promise((resolve,reject)=>{
       let options = {
         page: page,//需要显示的页码

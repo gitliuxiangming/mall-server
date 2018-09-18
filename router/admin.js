@@ -1,12 +1,11 @@
 const Router = require('express').Router;
 
 const UserModel = require('../models/userModle.js');
-const CommentModel = require('../models/comment.js');
+const OrderModel = require('../models/order.js');
+const ProductModel = require('../models/product.js');
 const pagination = require('../util/pagination.js');
 const hmac = require('../util/hmac.js');
-const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
+
 
 const router = Router();
 
@@ -71,16 +70,27 @@ router.use((req,res,next)=>{
 	}
 })
 
+//系统统计
 router.get('/count',(req,res)=>{
-	res.json({
-		code:0,
-		data:{
-			usernum:111,
-			ordernum:222,
-			productnum:333
-		}
-
+	UserModel.estimatedDocumentCount()
+	.then(usernum=>{
+		OrderModel.estimatedDocumentCount()
+		.then(ordernum=>{
+			ProductModel.estimatedDocumentCount()
+			.then(productnum=>{
+				res.json({
+					code:0,
+					data:{
+						usernum:usernum,
+						ordernum:ordernum,
+						productnum:productnum
+					}
+				})
+			})
+		})
 	})
+
+	
 })
 
 //获取用户数据

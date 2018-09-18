@@ -3,16 +3,6 @@ const router=Router();
 const UserModel = require('../models/userModle.js');
 const OrderModel = require('../models/order.js');
 
-//权限控制
-// router.use((req,res,next)=>{
-// 	if(req.userInfo.isAdmin){
-// 		next()
-// 	}else{
-// 		res.send({
-// 			code:10,
-// 		});
-// 	}
-// })
 
 
 //获取生成订单的商品列表
@@ -136,19 +126,18 @@ router.post('/',(req,res)=>{
 })
 
  //获取购物订单
- router.get('/getlist',(req,res)=>{
- 	let page = req.query.page;
- 	let query = {
- 		user:req.userInfo._id
- 	}
+router.get('/getlist',(req,res)=>{
+	let page = req.query.page;
+	let query = {
+					user:req.userInfo._id
+				}
 
- 	OrderModel
- 	.getPaginationProduct(page,query)
+	OrderModel
+	.getPaginationProduct(page,query)
 	.then(data=>{
-		
+
 		res.json({
 			code :0,
-			
 			data:{
 				list:data.list,
 				current:data.current,
@@ -158,45 +147,139 @@ router.post('/',(req,res)=>{
 			}
 		})
 	})
- });
+});
+//搜索
+router.get('/search',(req,res)=>{
+	let page = req.query.page || 1;
+	let keyword = req.query.keyword
+	OrderModel
+	.getPaginationOrders(page,{orderNo:{$regex:new RegExp(keyword,'i')}})
+	.then((result)=>{
+		// console.log(result)
+		res.json({ 
+			code:0,
+			data:{
+				current:result.current,
+				total:result.total,
+				list:result.list,
+				pageSize:result.pageSize,
+				keyword:keyword
+			}
+		});	 
+	})
+	.catch(e=>{
+		res.json({
+			code:1,
+			message:'查找订单失败,数据库操作失败'
+		})
+	});
+})
 
  //获取订单详情页
- router.get('/detail',(req,res)=>{
+router.get('/homedetail',(req,res)=>{
  
  	OrderModel
  	.findOne({orderNo:req.query.orderNo,user:req.userInfo._id})
 	.then(data=>{
 		res.json({
 			code :0,
+			data:data
+		})
+	})
+});
+
+// 权限控制
+router.use((req,res,next)=>{
+	if(req.userInfo.isAdmin){
+		next()
+	}else{
+		res.send({
+			code:10,
+		});
+	}
+})
+
+
+//后台获取所有订单
+router.get('/all',(req,res)=>{
+	let page = req.query.page;
+	OrderModel.getPaginationOrders(page)
+	.then((result)=>{
+		res.json({
+			code:0,
+			data:{
+				current:result.current,
+				total:result.total,
+				list:result.list,
+				pageSize:result.pageSize
+			}
+		})
+	})
+	.catch((e)=>{
+		res.json({
+			code:1,
+			message:'获取订单列表失败'
+		})
+	})
+})
+ //后台获取单个订单详情
+router.get('/detail',(req,res)=>{
+ 
+ 	OrderModel
+ 	.findOne({orderNo:req.query.orderNo})
+	.then(data=>{
+		res.json({
+			code :0,
+			data:data
+		})
+	})
+});
+ //后台发货
+router.put('/deliver',(req,res)=>{
+	OrderModel
+	.findOneAndUpdate(
+			{orderNo:req.body.orderNo},
+			{status:"40",statusDesc:"已发货"},
+			{new :true}
+		)
+	.then(data=>{
+	
+		res.json({
+			code :0,
+			data:data
+		})
+	})
+	.catch(e=>{
+		res.json({
+			code :0,
+			message:"取消订单失败"
+		})
+	})
+})
+ //取消订单
+router.put('/cancel',(req,res)=>{
+	OrderModel
+	.findOneAndUpdate(
+			{orderNo:req.body.orderNo,user:req.userInfo._id},
+			{status:"20",statusDesc:"取消"},
+			{new :true}
+		)
+	.then(data=>{
+	
+		res.json({
+			code :0,
 			
 			data:data
 		})
 	})
- });
- //取消订单
- router.put('/cancel',(req,res)=>{
- 		OrderModel
- 		.findOneAndUpdate(
- 			{orderNo:req.body.orderNo,user:req.userInfo._id},
- 			{status:"20",statusDesc:"取消"},
- 			{new :true}
- 			)
-		.then(data=>{
-		
-			res.json({
-				code :0,
-				
-				data:data
-			})
-		})
-		.catch(e=>{
-			res.json({
-				code :0,
-				
-				message:"取消订单失败"
-			})
+	.catch(e=>{
+		res.json({
+			code :0,
+			
+			message:"取消订单失败"
 		})
 	})
+})
 
 
 
