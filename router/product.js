@@ -21,7 +21,7 @@ const upload = multer({ storage: storage })
 
 const router = Router();
 
-router.get('/homeList',(req,res)=>{
+router.get('/home/list',(req,res)=>{
 	let page = req.query.page;
 	let query={status:0};
 	if(req.query.categoryId){
@@ -59,7 +59,7 @@ router.get('/homeList',(req,res)=>{
 	})
 })
 //获取商品详细信息
-router.get('/homeDetail',(req,res)=>{
+router.get('/home/detail',(req,res)=>{
 	ProductModel
 	.findOne({status:0,_id:req.query.productId},"-__v -createdAt -updateAt -category")
 	.then((product)=>{
